@@ -2,7 +2,7 @@ import json
 import func
 
 json_Path = 'C:/Users/u6352049/Downloads/'
-file = 'S_LV_network.json'
+file = 'W_LV_network.json'
 f = open(json_Path + file)
 data = json.load(f)
 
@@ -19,7 +19,8 @@ passive = [i for i in sorted(net.buses.index.to_list()) if i not in gen + load]
 print('gen', gen)
 print('load', load)
 print('passive', passive)
-
+print(" Bus", len(net.buses.index.to_list()))
+print(' Houses', len(load))
 # Once complete you can use more appropriate methods of storing
 # Find at https://pypsa.readthedocs.io/en/latest/import_export.html
 

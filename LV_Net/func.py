@@ -19,7 +19,7 @@ def add_active(name, net):
     net.add("Line", "My line {}".format(line_count),
             bus0="My bus {}".format(new_node),
             bus1="My bus {}".format(name),
-            x=0, r=0,
+            x=0.00001, r=0.00001,
             length=0.001)
     return new_node
 

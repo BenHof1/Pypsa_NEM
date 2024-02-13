@@ -8,15 +8,18 @@ import json
 sys.path.insert(1,'../LV_Net/')
 import func as translate
 #%%
+# Select the input network here
 json_Path = 'C:/Users/u6352049/Downloads/'
 file = 'D_LV_network.json'
 f = open(json_Path + file)
 data = json.load(f)
 
+#This creates the network with the desired structure and properties
 net = translate.to_pypsa(data)
 #%%
+## This section reads in the dmand datea that you wish to use
 demand = pd.read_csv('E:/Shubhankar/2022-01-26.csv',usecols=['systemid','export_p','export_q','timestamp'])
-demand.export_p =demand.export_p/1000
+demand.export_p =demand.export_p/1000 # NextGen is onMV scale. PYP kV scale
 demand.export_q =demand.export_q/1000
 
 #%%
@@ -25,9 +28,12 @@ da = dx[dx.timestamp==288]
 demand_2 = demand[demand.systemid.isin(da.systemid.unique())]
 #%%
 
+# Set the timestamp periou wish to use for the simulation
 net.snapshots = sorted(demand_2.timestamp.unique())
 
 #%%
+# This section sets the household load amounts by timestamp
+# it 1 household at a time
 count = 0
 c_max = len(demand_2.systemid.unique())
 load_samples = demand_2.systemid.unique()
@@ -40,7 +46,10 @@ for i in net.loads.index.to_list():
     net.loads_t.p_set[i] = ex_p
     net.loads_t.q_set[i] = ex_q
 #%%
-net.generators.loc[0, 'bus'] = "My bus 57_0"
+# Hard coded feeder info - mistake
+#check pypsa site to see which are the essential info
+#extendable and control are important components
+# net.generators.loc[0, 'bus'] = "My bus 57_0"
 net.generators.loc[0,'p_nom'] = 0.1
 net.generators.loc[0,'p_nom_min'] = 0.0
 net.generators.loc[0,'p_nom_max'] = 10
@@ -56,7 +65,7 @@ net.generators.loc[0,'marginal_cost'] = 1.0
 net.generators.loc[0,'p_nom_extendable']=True
 net.generators.loc[0,'control'] = 'Slack'
 
-
+#This section checks that the network is stable at this point. Can use angles later for evaluation
 net.lpf(snapshots=net.snapshots[0])
 now = net.snapshots[0]
 angle_diff = pd.Series(net.buses_t.v_ang.loc[now,net.lines.bus0].values -
